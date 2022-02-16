@@ -1,0 +1,91 @@
+<style>
+    .card{
+        float:left;
+        font-size: 50px;
+        height: 50px;
+        width: 80px;;
+        border:1px solid black;
+        padding-top: 10px;
+    }
+    .topDiv{
+        height:10%;
+        text-align: center;
+        margin-top: 20px;
+    }
+    .middleDiv{
+        height:70%;
+        background-color:yellow;
+    }
+    .bottomDiv{
+        height:15%;
+        text-align: center;
+    }
+    .marginForButton{
+        margin-top: 20px;                
+    }
+    .playerField{
+        height:40%;
+        background-color: gray;
+        text-align: right;
+    }
+    .msgDiv{
+        float:right;
+        vertical-align:text-top;
+         width:45%;
+         border: 1px solid black;
+         font-weight: bold;
+        font-size: 24px;
+        margin:0px;
+    }
+</style>
+
+<div class = "example-button-row" class="topDiv">
+    <div style="float:left; width:60%; font-size: 24px;" >
+        <button (click)="startGame()" mat-raised-button>New Game</button>
+        <button (click)="endGame()" mat-raised-button>End Game</button> 
+
+        <span *ngIf="gameBegin" style="margin-right: 20px;">Game playing</span>   
+        <span *ngIf="!gameBegin">Game not playing</span>   
+    </div>
+    <div class="msgDiv" *ngIf="!playerTurn" >
+        {{this._players[this.computer].points}} / <span *ngIf="this._players[this.computer].points != this._players[this.computer].optionalPoints">{{this._players[this.computer].optionalPoints}}</span>
+    </div>
+ </div>
+ <div class="middleDiv">
+   <div class="playerField">
+    <mat-icon *ngIf="!playerTurn">subdirectory_arrow_left</mat-icon>
+      <!-- <img style="width:27px;height:36px;" src="../images/c1.png" alt=""/> -->
+      <ng-container *ngFor="let item of [].constructor(computerCards.length); let i = index">
+
+        <div class="card" *ngIf="cardIndex > (i-1)*2 +1">
+            <span *ngIf="(i > 0) || !playerTurn" >{{computerCards[i]}}</span>
+        </div>
+    </ng-container>    
+      
+   </div>
+   <div style="height:20%;background-color: purple;"></div>
+   <div class="playerField">
+    <mat-icon *ngIf="playerTurn">subdirectory_arrow_left</mat-icon>
+    <ng-container *ngFor="let item of [].constructor(playerCards.length); let i = index">        
+        <div class="card" *ngIf="cardIndex > (i-1)*2">
+            {{playerCards[i]}}
+        </div>
+    </ng-container>
+    </div>
+ </div>
+ <div class="bottomDiv">
+    <div class="marginForButton" style="float:left; width:50%" >
+        <button (click)="hitCard()"  [disabled]="!playerTurn || !gameBegin" mat-raised-button color="primary">Hit</button>
+        <button (click)="double()" mat-raised-button color="primary" disabled><b>Double</b></button>
+        <button (click)="stand()" [disabled]="!playerTurn || !gameBegin" mat-raised-button color="warn">Stand</button>    
+    </div>
+    <div class="msgDiv  align-text-top" style="border:1px solid red" >
+        <div>
+            {{playerMessage}}
+        </div>
+        <br />
+        <div>
+            {{this._players[this.player1].points}} / <span *ngIf="this._players[this.player1].points != this._players[this.player1].optionalPoints">{{this._players[this.player1].optionalPoints}}</span>        
+        </div>
+    </div>
+</div>
