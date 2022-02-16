@@ -53,6 +53,7 @@
  </div>
  <div class="middleDiv">
    <div class="playerField">
+       <b>Computer</b><br/>
     <mat-icon *ngIf="!playerTurn">subdirectory_arrow_left</mat-icon>
       <!-- <img style="width:27px;height:36px;" src="../images/c1.png" alt=""/> -->
       <ng-container *ngFor="let item of [].constructor(computerCards.length); let i = index">
@@ -61,10 +62,10 @@
             <span *ngIf="(i > 0) || !playerTurn" >{{computerCards[i]}}</span>
         </div>
     </ng-container>    
-      
    </div>
    <div style="height:20%;background-color: purple;"></div>
    <div class="playerField">
+    <b>Player1</b><br/>
     <mat-icon *ngIf="playerTurn">subdirectory_arrow_left</mat-icon>
     <ng-container *ngFor="let item of [].constructor(playerCards.length); let i = index">        
         <div class="card" *ngIf="cardIndex > (i-1)*2">
@@ -74,6 +75,7 @@
     </div>
  </div>
  <div class="bottomDiv">
+     
     <div class="marginForButton" style="float:left; width:50%" >
         <button (click)="hitCard()"  [disabled]="!playerTurn || !gameBegin" mat-raised-button color="primary">Hit</button>
         <button (click)="double()" mat-raised-button color="primary" disabled><b>Double</b></button>

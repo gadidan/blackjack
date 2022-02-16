@@ -15,7 +15,7 @@ export class Player {
   //special properties used during the game
   currentBetValue: number = 0;
   //next property is set to true when the player exceeds 21
-  bust: boolean = false;
+  busted: boolean = false;
   //when the players has 21 points cannot take another card
   blackjack: boolean = false;
   //opening 21 gets 1.5 from bet
