@@ -26,45 +26,56 @@ export class CardsComponent implements OnInit {
     for (var i = 1; i< 53; i++){
 
       var _image = '';
+      var _imageStr = '';
       //console.log("i: " + i);
       let val = i%13;        
       let suitInd = Math.floor(i /13);
       //console.log("(" + val + "," + suitInd+")")
       var suit = Suits.Club;
+      
       _image += val +1;
       switch(suitInd) { 
         case 0: { 
           suit = Suits.Spade;
           _image += 's';
+          _imageStr += 's';
            break; 
         } 
         case 1: { 
            suit = Suits.Heart;
            _image += 'h';
+           _imageStr += 'h';
            break; 
         } 
         case 2: { 
           suit = Suits.Diamond;
           _image += 'd';
+          _imageStr += 'd';
           break; 
         } 
         case 3: { 
           suit = Suits.Club;
           _image += 'c';
+          _imageStr += 'c';
           break; 
         }
         default: { 
           suit = Suits.Club;
           _image += 'c';
+          _imageStr += 'c';
            break; 
         }
       }       
-      //console.log(_image);
+      _imageStr += val +1;
+      
+
+      console.log('../assets/Images/' + _image + '.png');
       var card: Card = {        
         id: i,
         value: (val  + 1) > 9 ?10 : val + 1,
         suit: suit,
-        image: _image,
+        imageStr: _image,
+        image: '..\\assets\\Images\\' + _imageStr + '.png',
         realValue: (i > 9) ? 10 : i
       };
       //{i,suit,val,_image};
@@ -74,7 +85,7 @@ export class CardsComponent implements OnInit {
   }
 
   public shuffleCards(): void {
-    console.log(this.cards.map(({ image }) => image).join())
+    //console.log(this.cards.map(({ image }) => image).join())
     for (var i = 0; i < 52 ; i++){
       var ind1 = this.GetRandom(52);
       var ind2 = this.GetRandom(52);
@@ -83,7 +94,7 @@ export class CardsComponent implements OnInit {
       this.cards[ind2] = temp;
     }
     ;
-    console.log(this.cards.map(({ image }) => image).join())
+    //console.log(this.cards.map(({ image }) => image).join())
 
   }
 

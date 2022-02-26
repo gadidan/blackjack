@@ -7,6 +7,7 @@ export class Card {
     // Spade. Heart, Diamond, Clubs
     suit:Suits;
 
+    imageStr:string = '';  
     image:string = '';  
 
     //2-10, 1/11
@@ -16,11 +17,9 @@ export class Card {
         console.log("card constuctor")
         this.id = id;
         this.suit = suit;
-        this.value = value;
-        this.image = "../images/" + _image;
+        this.value = value;        
         if (this.value > 9)
-            this.realValue = 10;        
-        this.image = '' + this.value + this.suit + '.jpg';
+            this.realValue = 10;                
         console.log("finish card constuctor")
     }
 }

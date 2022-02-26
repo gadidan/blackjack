@@ -18,22 +18,31 @@ export class GameComponent implements OnInit {
   _numberOfPlayers: number = 2;
   //computer (the dealer) is the lastone
   public player1: number = 0;
-  public computer: number = 1;
+  public computer: number = 1; //computer is the last player in list  
 
   // the card component
   public cardsComp:CardsComponent = new CardsComponent; 
   // the index of the current/ next card
   public cardIndex:number = 0;
-  // the player cards
-  public playerCards:string[] = [];
-  // the computer cards
-  public computerCards:string[] = [];
+  // the player cards (text,image (url))
+  public playerCards:[string,string][] = [];
+  public playersAmount:number[] = [];
+  // the computer cards (text,image (url))
+  public computerCards:[string,string][] = [];
   // set the change from player turn to the computers turn
   public playerTurn: boolean = true;
   // set message for player
   public playerMessage: string = '';
+  // set message for game
+  public gameMessage: string = '';
   // game state
+  public gameStart:boolean = false;  
   public gameBegin:boolean = false;
+  public roundEnd:boolean = false;
+  //show game message
+  public isGameMessage:boolean = false;
+
+
    
   //***** TO DO: forms to get playerS details */
   //constructor 
@@ -46,16 +55,20 @@ export class GameComponent implements OnInit {
     
     //inserting players & computer details for start
     for (var i = 0; i < this._numberOfPlayers; i++){
+      // init players amount to 1,000 (only the first time)
+      if (i != this._numberOfPlayers - 1 && this.playersAmount.length < this._numberOfPlayers - 1){
+        this.playersAmount.push(1000);
+      }
       let _p: Player = {
-        name: (i == this.player1) ? "Player 1" :"Computer",
-        amount: (i== this.player1) ? 1000 : 0,
+        name: (i != this._numberOfPlayers - 1) ? "Player " + i.toString() :"Computer",
+        amount: (i != this._numberOfPlayers - 1) ? this.playersAmount[i] : 0,
         cards: [],
         points: 0,
         optionalPoints: 0,
         standing: false,
         gameModeOn: false,
         currentBetValue: 0,
-        bust: false,
+        busted: false,
         blackjack: false,
         naturalBlackjack: false,
         winnerOfRound: false,
@@ -72,14 +85,13 @@ export class GameComponent implements OnInit {
       };
       //console.log(_p.name + ": " +  _p.points); 
       this._players.push(_p);
-    }
-       
+    }       
   }
   // initialization 
   InitGame() {
     //***** TO DO - needs to work only one time */
     // Initialization of the cards
-    this.cardsComp.initCardsArray();
+    this.cardsComp.initCardsArray();    
     //fisrt card
     this.cardIndex = 0;
     // suffle the cards
@@ -99,48 +111,36 @@ export class GameComponent implements OnInit {
     this.computerCards = [];
     this.playerMessage = '';
 
-    //reset player data
-    this._players[this.player1].amount = 0;
-    this._players[this.player1].currentBetValue = 0;
-    this._players[this.player1].cards =  [];
-    this._players[this.player1].points =  0;
-    this._players[this.player1].optionalPoints = 0;
-    this._players[this.player1].standing= false;
-    this._players[this.player1].gameModeOn= false;
-    this._players[this.player1].currentBetValue= 0;
-    this._players[this.player1].bust= false;
-    this._players[this.player1].blackjack= false;
-    this._players[this.player1].naturalBlackjack= false;
-    this._players[this.player1].winnerOfRound= false;
-    
-    //console.log(this._players[this.player1].name + ": " +  this._players[this.player1].points);
-    //reset computer data
-    this._players[this.computer].amount = 0;
-    this._players[this.computer].currentBetValue = 0;
-    this._players[this.computer].cards =  [];
-    this._players[this.computer].points =  0;
-    this._players[this.computer].optionalPoints = 0;
-    this._players[this.computer].standing= false;
-    this._players[this.computer].gameModeOn= false;
-    this._players[this.computer].currentBetValue= 0;
-    this._players[this.computer].bust= false;
-    this._players[this.computer].blackjack= false;
-    this._players[this.computer].naturalBlackjack= false;
-    this._players[this.computer].winnerOfRound= false;
-    //console.log(this._players[this.computer].name + ": " +  this._players[this.computer].points);
-
-
+    for (var i = 0; i < this._numberOfPlayers; i++)
+    {
+      this._players[i].cards =  [];
+      this._players[i].points =  0;
+      this._players[i].optionalPoints = 0;
+      this._players[i].standing= false;
+      this._players[i].gameModeOn= false;
+      this._players[i].busted= false;
+      this._players[i].blackjack= false;
+      this._players[i].naturalBlackjack= false;
+      this._players[i].winnerOfRound= false;
+    }  
   }
 
   ngOnInit(): void {
     //this.StartGame();
   }
+  StartGame(){
+    this.gameStart = true;
+    this.roundEnd = true;
+    this.playerTurn = true;
+    this.playerMessage = "Let the Game begin"
+    this.gameMessage = "Please Bet"
 
+  }
   // first two cards for player and computer
-  StartGame() {
+  StartRound() {
     this.InitPlayers();
-console.log("StartGame: " + this._players[this.computer].points)
-console.log("StartGame: " + this._players[this.player1].points)
+//console.log("StartRound: " + this._players[this.computer].points)
+//console.log("StartRound: " + this._players[this.player1].points)
     for (let i = 0; i< 2; i++)    {
       for (let j = 0; j < this._numberOfPlayers; j++){
         // getCard select the next card from array for player
@@ -150,23 +150,20 @@ console.log("StartGame: " + this._players[this.player1].points)
         this.pushToPlayersCards(j,_image);
       }
     }
-    if (this.CheckBlackjack(this._players[this.player1]) 
-      ||this.CheckBlackjack(this._players[this.computer]))
-    {
-      this.computerPlay();
-    }                            
+    
+    this.CheckWinning(true);
   }
  
   // case 0 oush to player cards list
   // case 1 oush to computer cards list
-  pushToPlayersCards(j:number, _image:string): void{
+  pushToPlayersCards(j:number, _image:[string,string]): void{
     if (j== this.player1) 
       this.playerCards.push(_image);
     else
       this.computerCards.push(_image);
   }
 
-  getCard(_player: Player): string{
+  getCard(_player: Player): [string,string]{
       //let card:Card = this.cardsComp.cards.filter(w => w.id == this.cardIndex+1)[0];
       console.log("StartGame: " + _player.points)
       console.log("StartGame: " + _player.optionalPoints)
@@ -193,7 +190,7 @@ console.log("StartGame: " + this._players[this.player1].points)
         _player.optionalPoints = _player.points;
       }
       
-      return card.image;      
+      return [card.imageStr, card.image];      
   }
 
   // check if over 21
@@ -207,62 +204,93 @@ console.log("StartGame: " + this._players[this.player1].points)
     if (_player.optionalPoints == 21 && _player.cards.length == 2)
     {
       _player.naturalBlackjack = true;
+      this.roundEnd = false;
+      this.playerTurn = false;
     }
     return _player.naturalBlackjack;
   }
 
   //computer stop hitting cards when over 16 (points ot optionPoints)
   CheckComputerPlay():boolean{
-    var res:boolean = false;
+    var res:boolean = true;
     if (this._players[this.computer].cards[1].value == 1 && this._players[this.computer].cards.length == 2)
     {
       //insurance
     }
 
-    if (this._players[this.computer].points > 16 
-        || this._players[this.computer].optionalPoints > 16)
-        {
-          this._players[this.computer].standing = true;
-          res = true;
-        }
+    console.log("busted: " + this._players[this.computer].busted);
+    console.log("points: " + this._players[this.computer].points);
+    console.log("optionalPoints: " + this._players[this.computer].optionalPoints);
+    if (this._players[this.computer].busted) {
+      res = false;
+    }
+    else if (this._players[this.computer].points > 16 
+        || this._players[this.computer].optionalPoints > 16){
 
+      this._players[this.computer].standing = true;
+      res = false;
+    }
+    
     return res;
   }
   //check whi is heigher (or draw), and sets the winner
-  CheckWinning() : boolean{
+  CheckWinning(bj:boolean) : boolean{
     var res:boolean = true;
-    if ((this._players[this.player1].optionalPoints > this._players[this.computer].optionalPoints)
-      || this._players[this.computer].busted){
-      this._players[this.player1].winnerOfRound = true;      
-      this.playerMessage = "You Won!!!!"
-      //this._players[this.player1].amount += this._players[this.player1].currentBetValue;
+
+    if (bj){
+      if (this.CheckBlackjack(this._players[this.player1]))        
+      {        
+        this.gameMessage = "BlackJack You Won!"
+        this.PayMopney();
+      }
+      else if (this.CheckBlackjack(this._players[this.computer])){
+        this.gameMessage = "Computer's BlackJack You lost!"
+        this.PayMopney();
+      }
+
     }
-    else if ((this._players[this.player1].optionalPoints < this._players[this.computer].optionalPoints)
-      || this._players[this.player1].busted){
-      this._players[this.computer].winnerOfRound = true;
-      //this._players[this.player1].amount -= this._players[this.player1].currentBetValue;
-      this.playerMessage = "Computer Won!!!!"
-      
-    }
-    else {
-      this._players[this.player1].winnerOfRound = false;
-      this._players[this.computer].winnerOfRound = false;
-      this.playerMessage = "Draw!!!!"
+    else{
+
+      if ((this._players[this.player1].optionalPoints > this._players[this.computer].optionalPoints)
+        || this._players[this.computer].busted){
+        this._players[this.player1].winnerOfRound = true;      
+        this.playerMessage = "You Won!!!!"
+        //this._players[this.player1].amount += this._players[this.player1].currentBetValue;
+      }
+      else if ((this._players[this.player1].optionalPoints < this._players[this.computer].optionalPoints)
+        || this._players[this.player1].busted){
+        this._players[this.computer].winnerOfRound = true;
+        //this._players[this.player1].amount -= this._players[this.player1].currentBetValue;
+        this.playerMessage = "Computer Won!!!!"
+        
+      }
+      else {
+        this._players[this.player1].winnerOfRound = false;
+        this._players[this.computer].winnerOfRound = false;
+        this.playerMessage = "Draw!!!!"
+      }
     }
     return res;
   }
 
+  bet() {    
+    this._players[this.player1].currentBetValue = 100;
+    console.log(this._players[this.player1].currentBetValue)
+    this._players[this.player1].amount -= 100;
+    this.gameMessage = "";
+    this.StartRound();
+  }
   // pay money only for player, if blackjack get 1.5 other wize win or loose the currentbet
 
   PayMopney(){
     if (this._players[this.player1].naturalBlackjack){      
-      this._players[this.player1].amount += this._players[1].currentBetValue * 1.5;
+      this._players[this.player1].amount += this._players[1].currentBetValue * 2.5;
     }
     else if (this._players[this.player1].winnerOfRound){
-      this._players[this.player1].amount += this._players[this.player1].currentBetValue;      
+      this._players[this.player1].amount += this._players[this.player1].currentBetValue * 2;
     }    
     else if (this._players[this.computer].winnerOfRound){
-      this._players[this.player1].amount -= this._players[this.player1].currentBetValue;      
+      this._players[this.player1].amount -= this._players[this.player1].currentBetValue * 0;      
     }
     if (this._players[this.computer].winnerOfRound){
 
@@ -278,29 +306,29 @@ console.log("StartGame: " + this._players[this.player1].points)
     this.StartGame();
     this.playerTurn = true;  
     this.gameBegin = true;  
+    this.roundEnd = false;
   }
-  //
-  // clearAll() {
-  //   this.InitGame();
-  // }
   
   //end game clear all data (init game), send message game over, and change state to game off
   endGame(): void {
       this.InitGame();
       this.playerMessage="GAME OVER";
       this.gameBegin = false;
+      this.roundEnd = false;
   }
 
   //player hit card, get the next card
   hitCard():void{
-    // gets ther next card
+    // gets ther next card    
     var _image = this.getCard(this._players[this.player1]);
     //insert into playerCards array
     this.pushToPlayersCards(0,_image);
     // check if busted
-    if (this._players[this.player1].busted = this.checkBusted(this._players[this.player1])){
+    this._players[this.player1].busted = this.checkBusted(this._players[this.player1])
+    if (this._players[this.player1].busted){
       this.playerMessage = "Busted!!!! you lost"
-      this.computerPlay();
+      this.roundEnd = false;
+      //this.computerPlay();
     }
 
   }
@@ -313,16 +341,18 @@ console.log("StartGame: " + this._players[this.player1].points)
   }
 
   async computerPlay() {
-    
-    if (this.CheckComputerPlay() 
+    console.log('this.CheckComputerPlay(): ' + this.CheckComputerPlay())
+    if (!this.CheckComputerPlay() 
       || this._players[this.player1].naturalBlackjack 
       || this._players[this.computer].naturalBlackjack){
-      this.CheckWinning();
+      this.CheckWinning(false);
       this.PayMopney();
+      // player natural  blackjack - wins 1.5
       if (this._players[this.player1].naturalBlackjack)
       {
         this.playerMessage = "Player BlackJack!!!!";
       }
+      // player natural  blackjack -
       else if (this._players[this.computer].naturalBlackjack)
       {
         this.playerMessage = "Computer BlackJack!!!!";
@@ -336,18 +366,23 @@ console.log("StartGame: " + this._players[this.player1].points)
       else{
         this.playerMessage ="DRAW!!!"
       }
-      this.gameBegin = false;
+      this.roundEnd = true;
+      console.log("roundEnd: " + this.roundEnd)
     }
     else { //computer can hit another card
       var _image = this.getCard(this._players[this.computer]);
-      this.pushToPlayersCards(1,_image);
-      if (this._players[this.computer].busted = this.checkBusted(this._players[this.computer])){
+      this.pushToPlayersCards(this.computer,_image);
+      console.log('(' + this._players[this.computer].points + ',' + this._players[this.computer].optionalPoints + ') ' + this.checkBusted(this._players[this.computer]));
+      this._players[this.computer].busted = this.checkBusted(this._players[this.computer]);
+      if (this._players[this.computer].busted){
         this.playerMessage = "computer Busted!!!! You Won!";
-        this.CheckWinning();
+        this.CheckWinning(false);
         this.PayMopney();
-        this.gameBegin = false;
+        this.playerTurn = false;
+        this.roundEnd = true;
+        console.log("roundEnd: " + this.roundEnd)
       }
-      else { // computer was not busted
+      else { // computer was not busted        
         await this.delay(1000);
         this.computerPlay();
       }
@@ -357,4 +392,5 @@ console.log("StartGame: " + this._players[this.player1].points)
   delay(ms: number) {
     return new Promise( resolve => setTimeout(resolve, ms) );
   }
+  
 }

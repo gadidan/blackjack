@@ -4,48 +4,81 @@
         font-size: 50px;
         height: 50px;
         width: 80px;;
-        border:1px solid black;
+        /* border:1px solid black; */
         padding-top: 10px;
     }
     .topDiv{
         height:10%;
         text-align: center;
-        margin-top: 20px;
+        margin-top: 20px;        
     }
     .middleDiv{
-        height:70%;
-        background-color:yellow;
+        height:70%;        
     }
     .bottomDiv{
         height:15%;
         text-align: center;
+    }
+    .moneySection{
+        background-color: red;
+        height:10%;
     }
     .marginForButton{
         margin-top: 20px;                
     }
     .playerField{
         height:40%;
-        background-color: gray;
+        /* background-color: rgb(165, 25, 25); */
+        background-color: rgb(14, 230, 21);
         text-align: right;
     }
     .msgDiv{
         float:right;
         vertical-align:text-top;
-         width:45%;
-         border: 1px solid black;
-         font-weight: bold;
+        width:45%;
+        /* border: 1px solid black; */
+        font-weight: bold;
         font-size: 24px;
         margin:0px;
     }
+    .floatRight{
+        float:right
+    }
+    .floatLeft{
+        float:right
+    }
+    .gameMsgDiv{        
+        margin-top:2px;        
+        vertical-align:text-top;        
+        height: 30%;        
+        color:ivory;
+        font-weight: bold;
+        font-size: 24px;
+        margin:0px;            
+    }
+    .scoreDiv{
+        width:100%;
+        height:20%;
+        border:1px solid black;
+        background-color: rgb(25, 146, 14);        
+    }
+    button{
+        background-color: rgb(13, 136, 13);
+        color:white;            
+    }    
+}
 </style>
 
-<div class = "example-button-row" class="topDiv">
+<div class="topDiv">
     <div style="float:left; width:60%; font-size: 24px;" >
         <button (click)="startGame()" mat-raised-button>New Game</button>
         <button (click)="endGame()" mat-raised-button>End Game</button> 
 
-        <span *ngIf="gameBegin" style="margin-right: 20px;">Game playing</span>   
-        <span *ngIf="!gameBegin">Game not playing</span>   
+        <div *ngIf="gameBegin" style="margin-right: 20px;float:right">Game playing</div>   
+        <div *ngIf="!gameBegin" style="float:right">Game not playing</div>   
+        <!-- <span *ngIf="gameBegin && playerTurn" >Player 1 </span> 
+        <span *ngIf="gameBegin && !playerTurn" >Computer </span> 
+        <span *ngIf="gameBegin"> is now playing</span> -->
     </div>
     <div class="msgDiv" *ngIf="!playerTurn" >
         {{this._players[this.computer].points}} / <span *ngIf="this._players[this.computer].points != this._players[this.computer].optionalPoints">{{this._players[this.computer].optionalPoints}}</span>
@@ -53,41 +86,80 @@
  </div>
  <div class="middleDiv">
    <div class="playerField">
-       <b>Computer</b><br/>
+       <font size="5" style="float:right;"><b>Computer</b></font><br/>
     <mat-icon *ngIf="!playerTurn">subdirectory_arrow_left</mat-icon>
       <!-- <img style="width:27px;height:36px;" src="../images/c1.png" alt=""/> -->
       <ng-container *ngFor="let item of [].constructor(computerCards.length); let i = index">
 
         <div class="card" *ngIf="cardIndex > (i-1)*2 +1">
-            <span *ngIf="(i > 0) || !playerTurn" >{{computerCards[i]}}</span>
+            <span *ngIf="(i > 0) || !playerTurn" ><img src="{{computerCards[i][1]}}" alt=""  width="100%"/></span>
         </div>
     </ng-container>    
    </div>
-   <div style="height:20%;background-color: purple;"></div>
+   <div class="scoreDiv">     
+        <div class="gameMsgDiv">            
+            <span *ngIf="roundEnd && gameBegin">{{playerMessage}} </span></div>
+        <div>
+        <div>
+            <div class="gameMsgDiv" *ngIf="roundEnd"  style="background-color:rgb(255, 0, 0);">{{gameMessage}}</div>        
+            <div class="gameMsgDiv" style=" font-size: 36px;text-align: center;">
+                {{this._players[this.player1].currentBetValue}} &#36;
+            </div>
+        </div>
+    </div>
+    <!-- <div *nfIf="!roundEnd" && style="height:50%" ><font size="7" style="color:ivory">{{playerMessage}}</font></div>
+    <div *nfIf="!roundEnd" style="height:50%" ><font size="7" style="color:ivory" >{{gameMessage}}</font></div>         -->
+   </div>
+   
    <div class="playerField">
-    <b>Player1</b><br/>
+    <font size="5" style="float:right;"><b>Player1</b></font><br/>
     <mat-icon *ngIf="playerTurn">subdirectory_arrow_left</mat-icon>
-    <ng-container *ngFor="let item of [].constructor(playerCards.length); let i = index">        
+    <ng-container *ngFor="let item of [].constructor(playerCards.length); let i = index">                
         <div class="card" *ngIf="cardIndex > (i-1)*2">
-            {{playerCards[i]}}
+            <img src="{{playerCards[i][1]}}" alt="" width="100%" />        
         </div>
     </ng-container>
+  
     </div>
  </div>
- <div class="bottomDiv">
-     
-    <div class="marginForButton" style="float:left; width:50%" >
-        <button (click)="hitCard()"  [disabled]="!playerTurn || !gameBegin" mat-raised-button color="primary">Hit</button>
-        <button (click)="double()" mat-raised-button color="primary" disabled><b>Double</b></button>
-        <button (click)="stand()" [disabled]="!playerTurn || !gameBegin" mat-raised-button color="warn">Stand</button>    
-    </div>
-    <div class="msgDiv  align-text-top" style="border:1px solid red" >
-        <div>
-            {{playerMessage}}
+ <div class="bottomDiv">    
+    <div>
+        <div class="marginForButton" style="float:left; width:50%" >
+            <button (click)="hitCard()"  [disabled]="!playerTurn || !gameBegin" mat-raised-button color="primary">Hit</button>
+            <button (click)="double()" mat-raised-button color="primary" disabled><b>Double</b></button>
+            <button (click)="stand()" [disabled]="!playerTurn || !gameBegin" mat-raised-button color="warn">Stand</button>    
         </div>
-        <br />
-        <div>
-            {{this._players[this.player1].points}} / <span *ngIf="this._players[this.player1].points != this._players[this.player1].optionalPoints">{{this._players[this.player1].optionalPoints}}</span>        
-        </div>
-    </div>
+        <div class="msgDiv  align-text-top" style="border:1px solid red" >
+            <div>
+                {{playerMessage}}
+            </div>
+            <br />
+            <div>
+                {{this._players[this.player1].points}} / <span *ngIf="this._players[this.player1].points != this._players[this.player1].optionalPoints">{{this._players[this.player1].optionalPoints}}</span>        
+            </div>
+            
+        </div>               
+    </div>    
 </div>
+<div class="moneySection">      
+    <span style="margin-left:100px;"><font size="5" style="font-weight:bold;">Your money:  {{this._players[this.player1].amount}} &#36;</font></span>
+    <br>   
+    <!-- <button md-fab class="image" 
+    style="background-image: ;"
+        [style.backgroundImage]="'url(..\\assets\\Images\\casino_chip_5.png)'">
+    </button> -->
+    
+    <button (click)="bet()"  [disabled]="!gameBegin && !roundEnd" mat-raised-button color="primary">bet</button>
+
+    </div>
+<!-- <div style="background-color: yellow; width:100% height:100px;;">
+    11<img src="https://mruanova.com/img/1.jpg" alt="" />11
+    22<img src="../assets/Images/c1.png" alt="" style="width:40px;height:80px"/>22
+<br><br>
+{{playerCards}}Amit
+<hr>Amit 
+    <ng-container *ngFor="let item of [].constructor(this.cardsComp.cards.length); let i = index">                
+            {{playerCards}}<br>            
+            <img src="{{this.cardsComp.cards[i].image}}" alt="" />        
+    </ng-container>
+</div> -->
