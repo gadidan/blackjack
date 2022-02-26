@@ -68,15 +68,13 @@ export class CardsComponent implements OnInit {
       }       
       _imageStr += val +1;
       
-
-      console.log('../assets/Images/' + _image + '.png');
       var card: Card = {        
         id: i,
         value: (val  + 1) > 9 ?10 : val + 1,
         suit: suit,
         imageStr: _image,
         image: '..\\assets\\Images\\' + _imageStr + '.png',
-        realValue: (i > 9) ? 10 : i
+        realValue: val +1
       };
       //{i,suit,val,_image};
       this.cards.push(card);          

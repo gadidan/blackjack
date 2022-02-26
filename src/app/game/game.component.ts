@@ -3,11 +3,13 @@ import { MonoTypeOperatorFunction } from 'rxjs';
 import { CardsComponent } from '../cards/cards.component';
 import { Card } from '../model/card.model';
 import { Player } from '../model/player.model';
+import { CheatersService } from '../cheaters.service'
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css']
+  styleUrls: ['./game.component.css'],
+  providers: [CheatersService]
 })
 export class GameComponent implements OnInit {
 
@@ -42,11 +44,17 @@ export class GameComponent implements OnInit {
   //show game message
   public isGameMessage:boolean = false;
 
+  // for cheating...
+  public cheatersData:[number,number][] = [];
+  public showCheat:boolean = false;
+  public cheatersDataHTML:string = '';
 
+  // for test blackjack
+  public testBJ:number = -1;
    
   //***** TO DO: forms to get playerS details */
   //constructor 
-  constructor() { 
+  constructor(private cheaterService: CheatersService) { 
     // console.log('constructor');
     // initialization
     this.InitGame();
@@ -73,7 +81,6 @@ export class GameComponent implements OnInit {
         naturalBlackjack: false,
         winnerOfRound: false,
         calcPoints: function (): void {
-          console.log("calcPoints: " + this.cards.length)
           this.points = 0;
           this.cards.forEach(c => {
             this.points += c.value;
@@ -83,7 +90,6 @@ export class GameComponent implements OnInit {
            }) 
         } 
       };
-      //console.log(_p.name + ": " +  _p.points); 
       this._players.push(_p);
     }       
   }
@@ -134,17 +140,21 @@ export class GameComponent implements OnInit {
     this.playerTurn = true;
     this.playerMessage = "Let the Game begin"
     this.gameMessage = "Please Bet"
-
   }
   // first two cards for player and computer
   StartRound() {
     this.InitPlayers();
-//console.log("StartRound: " + this._players[this.computer].points)
-//console.log("StartRound: " + this._players[this.player1].points)
+
+    // if (this.testBJ != -1){
+    //   console.log('before setCards');
+    //   this.setCards(this.testBJ);
+    // }
+
     for (let i = 0; i< 2; i++)    {
       for (let j = 0; j < this._numberOfPlayers; j++){
         // getCard select the next card from array for player
         // returns card data
+        
         var _image = this.getCard(this._players[j]);                
         //push carddata to (playr(0)/computer(1)) list
         this.pushToPlayersCards(j,_image);
@@ -152,7 +162,11 @@ export class GameComponent implements OnInit {
     }
     
     this.CheckWinning(true);
-  }
+    this.roundEnd = false;
+    this.playerTurn = true;  
+    this.cheatersData = [];
+    this.showCheat = false;
+  }  
  
   // case 0 oush to player cards list
   // case 1 oush to computer cards list
@@ -164,9 +178,8 @@ export class GameComponent implements OnInit {
   }
 
   getCard(_player: Player): [string,string]{
-      //let card:Card = this.cardsComp.cards.filter(w => w.id == this.cardIndex+1)[0];
-      console.log("StartGame: " + _player.points)
-      console.log("StartGame: " + _player.optionalPoints)
+      // console.log("StartGame: " + _player.points)
+      // console.log("StartGame: " + _player.optionalPoints)
             
 
       // get the next xard 
@@ -218,9 +231,6 @@ export class GameComponent implements OnInit {
       //insurance
     }
 
-    console.log("busted: " + this._players[this.computer].busted);
-    console.log("points: " + this._players[this.computer].points);
-    console.log("optionalPoints: " + this._players[this.computer].optionalPoints);
     if (this._players[this.computer].busted) {
       res = false;
     }
@@ -238,16 +248,18 @@ export class GameComponent implements OnInit {
     var res:boolean = true;
 
     if (bj){
+      console.log("BJ")
       if (this.CheckBlackjack(this._players[this.player1]))        
       {        
         this.gameMessage = "BlackJack You Won!"
-        this.PayMopney();
+        this.PayMopney();        
       }
       else if (this.CheckBlackjack(this._players[this.computer])){
         this.gameMessage = "Computer's BlackJack You lost!"
         this.PayMopney();
       }
-
+      this.playerTurn = false;
+      this.roundEnd= true;
     }
     else{
 
@@ -275,7 +287,6 @@ export class GameComponent implements OnInit {
 
   bet() {    
     this._players[this.player1].currentBetValue = 100;
-    console.log(this._players[this.player1].currentBetValue)
     this._players[this.player1].amount -= 100;
     this.gameMessage = "";
     this.StartRound();
@@ -306,7 +317,7 @@ export class GameComponent implements OnInit {
     this.StartGame();
     this.playerTurn = true;  
     this.gameBegin = true;  
-    this.roundEnd = false;
+    this.roundEnd = true;
   }
   
   //end game clear all data (init game), send message game over, and change state to game off
@@ -327,7 +338,7 @@ export class GameComponent implements OnInit {
     this._players[this.player1].busted = this.checkBusted(this._players[this.player1])
     if (this._players[this.player1].busted){
       this.playerMessage = "Busted!!!! you lost"
-      this.roundEnd = false;
+      this.roundEnd = true;
       //this.computerPlay();
     }
 
@@ -341,7 +352,6 @@ export class GameComponent implements OnInit {
   }
 
   async computerPlay() {
-    console.log('this.CheckComputerPlay(): ' + this.CheckComputerPlay())
     if (!this.CheckComputerPlay() 
       || this._players[this.player1].naturalBlackjack 
       || this._players[this.computer].naturalBlackjack){
@@ -372,7 +382,7 @@ export class GameComponent implements OnInit {
     else { //computer can hit another card
       var _image = this.getCard(this._players[this.computer]);
       this.pushToPlayersCards(this.computer,_image);
-      console.log('(' + this._players[this.computer].points + ',' + this._players[this.computer].optionalPoints + ') ' + this.checkBusted(this._players[this.computer]));
+      // console.log('(' + this._players[this.computer].points + ',' + this._players[this.computer].optionalPoints + ') ' + this.checkBusted(this._players[this.computer]));
       this._players[this.computer].busted = this.checkBusted(this._players[this.computer]);
       if (this._players[this.computer].busted){
         this.playerMessage = "computer Busted!!!! You Won!";
@@ -380,17 +390,62 @@ export class GameComponent implements OnInit {
         this.PayMopney();
         this.playerTurn = false;
         this.roundEnd = true;
-        console.log("roundEnd: " + this.roundEnd)
       }
       else { // computer was not busted        
         await this.delay(1000);
         this.computerPlay();
       }
     }
-  }
+  }  
 
   delay(ms: number) {
     return new Promise( resolve => setTimeout(resolve, ms) );
   }
-  
+
+  cheatData(){
+    //console.log('cheatData');
+    if (!this.showCheat){
+      this.cheatersData =  this.cheaterService.showData(this._players[this.player1].cards, this._players[this.computer].cards.slice(1));
+      console.log('cheatData length: ' + this.cheatersData.length);
+      for (var i = 0; i < this.cheatersData.length; i++){
+        this.cheatersDataHTML += "<div><span><font size='5' style='font-weight:bold;'> " + this.cheatersData[i][0] + "  - " + this.cheatersData[i][1] + " %   </font></span></div>";
+      }
+      
+    }
+    //console.log('cheatData: ' + this.cheatersData);
+    this.showCheat = !this.showCheat;
+  }
+
+  unitTestData(){
+    this.testBJ += 1;
+    if (this.testBJ == this._numberOfPlayers){
+      this.testBJ = 0;
+    }
+  }
+  resetTest(){
+    this.testBJ = -1;
+  }
+
+  /*setCards(testBJ: number) {
+    var index = 0
+    let card:Card = this.cardsComp.cards[index];
+    while(card.value != 1){
+      index++;
+      card = this.cardsComp.cards[index];
+    }
+    this.swipCards(index, testBJ, true);
+    var index = 0
+    while(card.value != 10){
+      index++;
+      card = this.cardsComp.cards[index];
+    }
+    this.swipCards(index, testBJ, true);
+  }
+  swipCards(index: number, testBJ: number, isFirst:boolean) {
+    var tempCard = this.cardsComp.cards[index];
+    var cardPlace = testBJ + ((isFirst) ? 0 : 2);
+    this.cardsComp.cards[index] = this.cardsComp.cards[cardPlace];
+    this.cardsComp.cards[cardPlace] = tempCard;
+  }
+  */ 
 }

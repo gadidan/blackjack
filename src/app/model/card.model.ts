@@ -14,12 +14,12 @@ export class Card {
     realValue:number  = 0;    
     
     constructor(id: number, value: number, suit: Suits, _image: string){ 
-        console.log("card constuctor")
         this.id = id;
         this.suit = suit;
         this.value = value;        
+        this.realValue = value;
         if (this.value > 9)
             this.realValue = 10;                
-        console.log("finish card constuctor")
+        
     }
 }
