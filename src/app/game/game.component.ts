@@ -61,6 +61,12 @@ export class GameComponent implements OnInit {
     // console.log(this.cardsComp.cards.map(({ id }) => id).join())
     // console.log('this.cardsComp.cardsComp.length: ' + this.cardsComp.cards.length);
     
+    this.InitPlayers();
+         
+  }
+
+  // initialize players
+  InitPlayers() {
     //inserting players & computer details for start
     for (var i = 0; i < this._numberOfPlayers; i++){
       // init players amount to 1,000 (only the first time)
@@ -91,7 +97,7 @@ export class GameComponent implements OnInit {
         } 
       };
       this._players.push(_p);
-    }       
+    }  
   }
   // initialization 
   InitGame() {
@@ -108,8 +114,8 @@ export class GameComponent implements OnInit {
     this.cardsComp.shuffleCards();
   }
 
-  // init state for player B4 next round starts 
-  InitPlayers(){
+  // reset state for player B4 next round starts 
+  ResetPlayers(){
     // initialized game data, 
     // remove all curent cards, 
     // deleting messages
@@ -146,7 +152,7 @@ export class GameComponent implements OnInit {
   }
   // starts this round
   StartRound() {
-    this.InitPlayers();
+    this.ResetPlayers();
 
     // if (this.testBJ != -1){
     //   console.log('before setCards');
