@@ -90,7 +90,6 @@
     <mat-icon *ngIf="!playerTurn">subdirectory_arrow_left</mat-icon>
       <!-- <img style="width:27px;height:36px;" src="../images/c1.png" alt=""/> -->
       <ng-container *ngFor="let item of [].constructor(computerCards.length); let i = index">
-        1{{playerTurn}}1
         <div class="card" *ngIf="cardIndex > (i-1)*2 +1">
             <span *ngIf="(i > 0) || !playerTurn" ><img src="{{computerCards[i][1]}}" alt=""  width="100%"/></span>
         </div>

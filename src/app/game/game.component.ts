@@ -108,6 +108,7 @@ export class GameComponent implements OnInit {
     this.cardsComp.shuffleCards();
   }
 
+  // init state for player B4 next round starts 
   InitPlayers(){
     // initialized game data, 
     // remove all curent cards, 
@@ -134,6 +135,8 @@ export class GameComponent implements OnInit {
   ngOnInit(): void {
     //this.StartGame();
   }
+
+  // open table for game
   StartGame(){
     this.gameStart = true;
     this.roundEnd = true;
@@ -141,7 +144,7 @@ export class GameComponent implements OnInit {
     this.playerMessage = "Let the Game begin"
     this.gameMessage = "Please Bet"
   }
-  // first two cards for player and computer
+  // starts this round
   StartRound() {
     this.InitPlayers();
 
@@ -149,7 +152,7 @@ export class GameComponent implements OnInit {
     //   console.log('before setCards');
     //   this.setCards(this.testBJ);
     // }
-
+    // first two cards for player and computer
     for (let i = 0; i< 2; i++)    {
       for (let j = 0; j < this._numberOfPlayers; j++){
         // getCard select the next card from array for player
@@ -160,7 +163,7 @@ export class GameComponent implements OnInit {
         this.pushToPlayersCards(j,_image);
       }
     }
-    
+    // check BlackJacks
     this.CheckWinning(true);
     this.roundEnd = false;
     this.playerTurn = true;  
@@ -290,6 +293,7 @@ export class GameComponent implements OnInit {
     this._players[this.player1].amount -= 100;
     this.gameMessage = "";
     this.StartRound();
+    console.log('Bet: ' + this.playerTurn);
   }
   // pay money only for player, if blackjack get 1.5 other wize win or loose the currentbet
 

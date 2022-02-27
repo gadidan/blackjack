@@ -73,11 +73,12 @@ export class CardsComponent implements OnInit {
         value: (val  + 1) > 9 ?10 : val + 1,
         suit: suit,
         imageStr: _image,
+        
         image: '..\\assets\\Images\\' + _imageStr + '.png',
         realValue: val +1
       };
       //{i,suit,val,_image};
-      this.cards.push(card);          
+      this.cards.push(card); 
     }   
     //console.log("Number of cards: " + this.cards.length)
   }
