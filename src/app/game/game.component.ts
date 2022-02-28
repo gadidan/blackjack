@@ -4,6 +4,7 @@ import { CardsComponent } from '../cards/cards.component';
 import { Card } from '../model/card.model';
 import { Player } from '../model/player.model';
 import { CheatersService } from '../cheaters.service'
+import { ApiServiceService } from '../services/api-service.service'
 
 @Component({
   selector: 'app-game',
@@ -46,7 +47,9 @@ export class GameComponent implements OnInit {
 
   // for cheating...
   public cheatersData:[number,number][] = [];
+  public cheatersDataApi:string = '';
   public showCheat:boolean = false;
+  public showCheatApi:boolean = false;
   public cheatersDataHTML:string = '';
 
   // for test blackjack
@@ -54,7 +57,7 @@ export class GameComponent implements OnInit {
    
   //***** TO DO: forms to get playerS details */
   //constructor 
-  constructor(private cheaterService: CheatersService) { 
+  constructor(private cheaterService: CheatersService, private apiServiceService: ApiServiceService) { 
     // console.log('constructor');
     // initialization
     this.InitGame();
@@ -175,6 +178,7 @@ export class GameComponent implements OnInit {
     this.playerTurn = true;  
     this.cheatersData = [];
     this.showCheat = false;
+    this.showCheatApi = false;
   }  
  
   // case 0 oush to player cards list
@@ -424,6 +428,18 @@ export class GameComponent implements OnInit {
     }
     //console.log('cheatData: ' + this.cheatersData);
     this.showCheat = !this.showCheat;
+  }
+
+  cheatApiData(){
+    if (!this.showCheatApi){
+      this.apiServiceService.getCheateData(this._players[this.player1].cards, this._players[this.computer].cards.slice(1)).subscribe(response => {
+        console.log(response);        
+        this.cheatersDataApi = response.toString();
+        });
+      console.log('cheatData length: ' + this.cheatersData.length);      
+    }
+    console.log('cheatersDataApi: ' + this.cheatersDataApi);
+    this.showCheatApi = !this.showCheatApi;
   }
 
   unitTestData(){

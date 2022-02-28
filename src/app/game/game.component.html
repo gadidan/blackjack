@@ -151,6 +151,7 @@
     </button> -->
     
     <button (click)="cheatData()">cheat</button>
+    <button (click)="cheatApiData()">cheatApi</button>
     <button (click)="unitTestData()" *ngIf="false;">test blackJack</button>
     <button (click)="resetTest()" *ngIf="testBJ != -1">reset test</button>
     <span><font size="5" style="font-weight:bold;"> BET:   </font></span>
@@ -163,4 +164,9 @@
                 <span><font size="5" style="font-weight:bold;"> {{cheatersData[i][0]}}  - {{cheatersData[i][1] | number:'1.1-2' }} %   </font></span>
             </div>
         </ng-container>    
+    </div>
+    <div *ngIf="showCheatApi">        
+        <div>
+            <span><font size="5" style="font-weight:bold;"> {{cheatersDataApi | json}} </font></span>
+        </div>
     </div>
